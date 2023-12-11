@@ -9,6 +9,15 @@ interface ConnectWebglOptions {
     /** canvas scene w&h */
     width?: number
     height?: number
+
+    /** if need environment mapping */
+    environmentMaps?: boolean
+
+    /** camera config */
+    cameraPosition?: Vector3
+    fov?: number
+    near?: number
+    far?: number
 }
 
 type ChangeType = 'changeCameraPreset'
@@ -27,6 +36,7 @@ class ConnectWebgl {
     sceneControl: SceneControl
 
     private lookAt: Vector3 = new Vector3(0, 0, 0)
+    private eventMap: Partial<Record<ChangeType, Array<(params: ChangeTypeCbParameter<ChangeType>) => void>>> = {}
 
     constructor(container: HTMLElement, options?: ConnectWebglOptions) {
         this.options = options ?? {}
@@ -35,11 +45,18 @@ class ConnectWebgl {
     }
 
     private init() {
-        const { width, height, orbitControls } = this.options
+        const { width, height, orbitControls, environmentMaps, cameraPosition, fov, near, far } = this.options
         const scene = new SceneControl({
             orbitControls,
             ambientLight: true,
             reset: true,
+            defCameraOps: {
+                position: new Vector3(100, 100, 0),
+                fov: fov ?? 90,
+                aspect: width && height ? width / height : 1,
+                near: near ?? 0.1,
+                far: far ?? 10000,
+            },
             rendererOps: {
                 size: {
                     width: width ?? this.container.clientWidth,
@@ -49,50 +66,49 @@ class ConnectWebgl {
         })
         scene.render(this.container)
 
-        this.intrusionCode(scene.camera!)
+        this.intrusionCode(scene)
 
-        const pmremGenerator = new PMREMGenerator(scene.renderer!)
-        pmremGenerator.compileEquirectangularShader()
+        if (environmentMaps) {
+            const pmremGenerator = new PMREMGenerator(scene.renderer!)
+            pmremGenerator.compileEquirectangularShader()
 
-        // @ts-expect-error
-        const roomEnvironment = new lib.RoomEnvironment()
-        scene.scene!.environment = pmremGenerator.fromScene(roomEnvironment, 0.04).texture
+            // @ts-expect-error
+            const roomEnvironment = new lib.RoomEnvironment()
+            scene.scene!.environment = pmremGenerator.fromScene(roomEnvironment, 0.04).texture
+        }
 
         return scene
     }
 
     /**
      * Intrusion Camera Code
-     * @param camera
+     * @param sceneControl
      */
-    private intrusionCode(camera: PerspectiveCamera) {
-        const context = this
+    private intrusionCode(sceneControl: SceneControl) {
+        if (sceneControl.controls) {
+            sceneControl.controls.addEventListener('change', () => {
+                const direction = new Vector3()
+                sceneControl.camera!.getWorldDirection(direction)
 
-        camera.position.set = function (x: number, y: number, z: number) {
-            console.log('set camera position', x, y, z)
-
-            context.triggerChange('changeCameraPreset', {
-                position: new Vector3(x, y, z),
-                target: context.lookAt,
+                this.triggerChange('changeCameraPreset', {
+                    position: sceneControl.camera!.position,
+                    target: direction,
+                })
             })
-
-            return camera.position.set(x, y, z)
         }
 
-        // camera.lookAt = function (vector: any) {
-        //     console.log('set camera position', vector)
-
-        //     this.lookAt = vector
-        //     context.triggerChange('changeCameraPreset', {
-        //         position: camera.position,
-        //         target: vector,
-        //     })
-
-        //     return camera.lookAt(vector)
-        // }
+        // TODO, if not has controls
     }
 
-    private triggerChange<T extends ChangeType>(change: T, events: ChangeTypeEvents<T>) { }
+    /**
+     * Trigger Change
+     * @param change
+     * @param events
+     */
+    private triggerChange<T extends ChangeType>(change: T, events: ChangeTypeEvents<T>) {
+        if (this.eventMap[change])
+            this.eventMap[change]!.forEach(cb => cb(events))
+    }
 
     /**
      * Add Model In Scene
@@ -142,11 +158,18 @@ class ConnectWebgl {
         }
     }
 
-    changeCameraPreset() { }
+    addEventListener<T extends ChangeType>(change: T, cb: (params: ChangeTypeCbParameter<T>) => void) {
+        if (this.eventMap[change])
+            this.eventMap[change]!.push(cb as any)
 
-    addEventListener<T extends ChangeType>(change: T, cb: (params: ChangeTypeCbParameter<T>) => void) { }
+        else
+            (this.eventMap[change] as any) = [cb]
+    }
 
-    removeEventListener() { }
+    removeEventListener<T extends ChangeType>(change: T, cb: (params: ChangeTypeCbParameter<T>) => void) {
+        if (this.eventMap[change])
+            this.eventMap[change] = this.eventMap[change]!.filter(fn => fn !== cb)
+    }
 }
 
 export default ConnectWebgl

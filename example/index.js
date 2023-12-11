@@ -4,10 +4,16 @@ const container = document.getElementById('app')
 
 const connectWebgl = new ConnectWebgl(container, {
     orbitControls: true,
+    environmentMaps: true,
     width: window.innerWidth,
     height: window.innerHeight,
 })
 
 connectWebgl.addModelInScene('./glb/fac.glb')
 
-console.log(connectWebgl.sceneControl.scene)
+connectWebgl.addEventListener('changeCameraPreset', ({
+    position,
+    target,
+}) => {
+    console.log('changeCameraPreset', position, target)
+})
