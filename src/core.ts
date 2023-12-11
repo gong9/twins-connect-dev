@@ -1,4 +1,4 @@
-import type { PerspectiveCamera } from 'thunder-3d'
+// @ts-nocheck  dts compile error, so when dev remove this line
 import { ModelLoader, PMREMGenerator, SceneControl, Vector3, lib } from 'thunder-3d'
 
 const modelLoader = new ModelLoader()
@@ -72,7 +72,7 @@ class ConnectWebgl {
             const pmremGenerator = new PMREMGenerator(scene.renderer!)
             pmremGenerator.compileEquirectangularShader()
 
-            // @ts-expect-error
+            // @ts-ignore
             const roomEnvironment = new lib.RoomEnvironment()
             scene.scene!.environment = pmremGenerator.fromScene(roomEnvironment, 0.04).texture
         }

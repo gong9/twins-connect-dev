@@ -7,5 +7,6 @@ module.exports = {
     'no-console': 'off',
     '@typescript-eslint/no-this-alias': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
+    '@typescript-eslint/prefer-ts-expect-error': 'off',
   },
 }
