@@ -11,7 +11,7 @@ const connectWebgl = new ConnectWebgl(container, {
 
 connectWebgl.addModelInScene('./glb/fac.glb')
 
-connectWebgl.addEventListener('changeCameraPreset', ({
+connectWebgl.addEventListener('cameraChange', ({
     position,
     target,
 }) => {

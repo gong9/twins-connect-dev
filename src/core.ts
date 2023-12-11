@@ -20,9 +20,9 @@ interface ConnectWebglOptions {
     far?: number
 }
 
-type ChangeType = 'changeCameraPreset'
+type ChangeType = 'cameraChange'
 
-type ChangeTypeCbParameter<T> = T extends 'changeCameraPreset' ? {
+type ChangeTypeCbParameter<T> = T extends 'cameraChange' ? {
     position: Vector3
     target: Vector3
 } : never
@@ -90,7 +90,7 @@ class ConnectWebgl {
                 const direction = new Vector3()
                 sceneControl.camera!.getWorldDirection(direction)
 
-                this.triggerChange('changeCameraPreset', {
+                this.triggerChange('cameraChange', {
                     position: sceneControl.camera!.position,
                     target: direction,
                 })
@@ -164,6 +164,14 @@ class ConnectWebgl {
 
         else
             (this.eventMap[change] as any) = [cb]
+
+        const direction = new Vector3()
+        this.sceneControl.camera!.getWorldDirection(direction)
+
+        this.triggerChange(change, {
+            position: this.sceneControl.camera!.position,
+            target: direction,
+        } as any)
     }
 
     removeEventListener<T extends ChangeType>(change: T, cb: (params: ChangeTypeCbParameter<T>) => void) {
