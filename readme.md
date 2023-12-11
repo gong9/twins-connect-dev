@@ -38,6 +38,12 @@ connectWebgl.addEventListener('cameraChange', ({
     - addEventListener
     - removeEventListener
         - cameraChange  相机位置和朝向发生变化之后触发
+- addModelInScene
+    - source 模型资源地址
+    - isCache 是否缓存模型
+    - position 模型位置 默认 (0,0,0)
+    - onProgress 模型加载进度回调
+    - onError 模型加载失败回调
 
 - changeCameraPreset 切换相机位置和朝向  【wip】
     - position

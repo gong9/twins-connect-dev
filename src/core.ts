@@ -1,5 +1,6 @@
 // @ts-nocheck  dts compile error, so when dev remove this line
 import { ModelLoader, PMREMGenerator, SceneControl, Vector3, lib } from 'thunder-3d'
+import localforage from 'localforage'
 
 const modelLoader = new ModelLoader()
 
@@ -117,17 +118,31 @@ class ConnectWebgl {
      * @param onProgress
      * @param onError
      */
-    addModelInScene(source: string, isCache = true, onProgress?: (event: ProgressEvent) => void, onError?: (event: ErrorEvent) => void) {
+    async addModelInScene(source: string, isCache = true, position = new Vector3(0, 0, 0), onProgress?: (event: ProgressEvent) => void, onError?: (event: ErrorEvent) => void) {
         const fileFormat = source.split('.').pop()
 
+        if (isCache) {
+            fetch(source).then(res => res.blob()).then((blob) => {
+                localforage.setItem(source, blob)
+            })
+        }
+
+        const blob = await localforage.getItem(source) as Blob
+        let lastSource = source
+
+        if (blob && isCache)
+            lastSource = URL.createObjectURL(blob)
+
         if (fileFormat === 'glb' || fileFormat === 'gltf') {
-            modelLoader.loadGLTF(source, false, true, '/draco/', undefined, onProgress, onError).then((model) => {
+            modelLoader.loadGLTF(lastSource, false, true, '/draco/', undefined, onProgress, onError).then((model) => {
+                model.scene.position.set(position.x, position.y, position.z)
                 this.sceneControl.add(model.scene)
             })
         }
 
         if (fileFormat === 'fbx') {
-            modelLoader.loadFbx(source, false, undefined, onProgress, onError).then((model) => {
+            modelLoader.loadFbx(lastSource, false, undefined, onProgress, onError).then((model) => {
+                model.position.set(position.x, position.y, position.z)
                 this.sceneControl.add(model)
             })
         }

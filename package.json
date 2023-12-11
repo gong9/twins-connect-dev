@@ -1,6 +1,6 @@
 {
   "name": "twins-connect-dev",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "lib/index.cjs.js",
   "module": "lib/index.es.js",
@@ -59,6 +59,7 @@
     ]
   },
   "dependencies": {
+    "localforage": "^1.10.0",
     "thunder-3d": "0.0.4-alpha8"
   }
 }
