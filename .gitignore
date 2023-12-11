@@ -2,3 +2,6 @@
 /lib
 /coverage
 dist
+.parcel-cache
+
+public/glb/*
