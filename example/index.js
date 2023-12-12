@@ -36,6 +36,7 @@ connectWebgl.addModelInScene('./glb/fac.glb', true, {
 connectWebgl.addEventListener('cameraChange', ({
     position,
     target,
+    orbitControlsTarget,
 }) => {
-    console.log('changeCameraPreset', position, target)
+    console.log('changeCameraPreset', position, target, orbitControlsTarget)
 })

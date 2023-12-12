@@ -28,6 +28,7 @@ type ChangeType = 'cameraChange'
 type ChangeTypeCbParameter<T> = T extends 'cameraChange' ? {
     position: Vector3
     target: Vector3
+    orbitControlsTarget: Vector3 | null
 } : never
 
 type ChangeTypeEvents<T> = ChangeTypeCbParameter<T>
@@ -39,12 +40,10 @@ interface SetCameraLookAtParameter {
 
 class ConnectWebgl {
     private options: ConnectWebglOptions
+    private eventMap: Partial<Record<ChangeType, Array<(params: ChangeTypeCbParameter<ChangeType>) => void>>> = {}
 
     container: HTMLElement
     sceneControl: SceneControl
-
-    private lookAt: Vector3 = new Vector3(0, 0, 0)
-    private eventMap: Partial<Record<ChangeType, Array<(params: ChangeTypeCbParameter<ChangeType>) => void>>> = {}
 
     constructor(container: HTMLElement, options?: ConnectWebglOptions) {
         this.options = options ?? {}
@@ -102,6 +101,7 @@ class ConnectWebgl {
                 this.triggerChange('cameraChange', {
                     position: sceneControl.camera!.position,
                     target: direction,
+                    orbitControlsTarget: sceneControl.controls?.target || null,
                 })
             })
         }
@@ -147,6 +147,7 @@ class ConnectWebgl {
                 (model) => {
                     model.scene.position.set(position.x, position.y, position.z)
                     this.sceneControl.add(model.scene)
+                    return model
                 },
                 onProgress,
                 onError)
@@ -194,13 +195,13 @@ class ConnectWebgl {
         else
             (this.eventMap[change] as any) = [cb]
 
-        const direction = new Vector3()
-        this.sceneControl.camera!.getWorldDirection(direction)
+        // const direction = new Vector3()
+        // this.sceneControl.camera!.getWorldDirection(direction)
 
-        this.triggerChange(change, {
-            position: this.sceneControl.camera!.position,
-            target: direction,
-        } as any)
+        // this.triggerChange(change, {
+        //     position: this.sceneControl.camera!.position,
+        //     target: direction,
+        // } as any)
     }
 
     removeEventListener<T extends ChangeType>(change: T, cb: (params: ChangeTypeCbParameter<T>) => void) {
