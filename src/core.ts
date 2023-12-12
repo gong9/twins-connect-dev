@@ -6,6 +6,8 @@ const modelLoader = new ModelLoader()
 
 interface ConnectWebglOptions {
     orbitControls?: boolean
+    orbitControlsTarget?: Vector3
+    lookAt?: Vector3
 
     /** canvas scene w&h */
     width?: number
@@ -30,6 +32,11 @@ type ChangeTypeCbParameter<T> = T extends 'cameraChange' ? {
 
 type ChangeTypeEvents<T> = ChangeTypeCbParameter<T>
 
+interface SetCameraLookAtParameter {
+    position: Vector3
+    target: Vector3
+}
+
 class ConnectWebgl {
     private options: ConnectWebglOptions
 
@@ -46,13 +53,13 @@ class ConnectWebgl {
     }
 
     private init() {
-        const { width, height, orbitControls, environmentMaps, cameraPosition, fov, near, far } = this.options
+        const { width, height, orbitControls, environmentMaps, cameraPosition, fov, near, far, orbitControlsTarget, lookAt } = this.options
         const scene = new SceneControl({
             orbitControls,
             ambientLight: true,
             reset: true,
             defCameraOps: {
-                position: new Vector3(100, 100, 0),
+                position: cameraPosition ?? new Vector3(10, 10, 10),
                 fov: fov ?? 90,
                 aspect: width && height ? width / height : 1,
                 near: near ?? 0.1,
@@ -78,6 +85,8 @@ class ConnectWebgl {
             scene.scene!.environment = pmremGenerator.fromScene(roomEnvironment, 0.04).texture
         }
 
+        scene.camera!.lookAt(lookAt ?? new Vector3(0, 0, 0))
+        scene.controls!.target.copy(orbitControlsTarget ?? new Vector3(0, 0, 0))
         return scene
     }
 
@@ -90,7 +99,6 @@ class ConnectWebgl {
             sceneControl.controls.addEventListener('change', () => {
                 const direction = new Vector3()
                 sceneControl.camera!.getWorldDirection(direction)
-
                 this.triggerChange('cameraChange', {
                     position: sceneControl.camera!.position,
                     target: direction,
@@ -134,10 +142,14 @@ class ConnectWebgl {
             lastSource = URL.createObjectURL(blob)
 
         if (fileFormat === 'glb' || fileFormat === 'gltf') {
-            modelLoader.loadGLTF(lastSource, false, true, '/draco/', undefined, onProgress, onError).then((model) => {
-                model.scene.position.set(position.x, position.y, position.z)
-                this.sceneControl.add(model.scene)
-            })
+            modelLoader.loadGLTF(lastSource, false, true,
+                '/draco/',
+                (model) => {
+                    model.scene.position.set(position.x, position.y, position.z)
+                    this.sceneControl.add(model.scene)
+                },
+                onProgress,
+                onError)
         }
 
         if (fileFormat === 'fbx') {
@@ -153,7 +165,9 @@ class ConnectWebgl {
      * @param position
      * @param lookat
      */
-    setCameraLookAt(position: Vector3, lookat: Vector3) {
+    setCameraLookAt(params: SetCameraLookAtParameter) {
+        const { position, target: lookat } = params
+
         if (this.sceneControl.camera) {
             this.sceneControl.camera.position.set(position.x, position.y, position.z)
             this.sceneControl.camera.lookAt(lookat)
