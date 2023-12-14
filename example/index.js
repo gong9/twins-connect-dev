@@ -5,6 +5,7 @@ const container = document.getElementById('app')
 const connectWebgl = new ConnectWebgl(container, {
     orbitControls: true,
     environmentMaps: true,
+    enableDamping: true,
     width: window.innerWidth,
     height: window.innerHeight,
     imgSkybox: [
