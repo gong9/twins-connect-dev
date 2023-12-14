@@ -1,8 +1,10 @@
 // @ts-nocheck  dts compile error, so when dev remove this line
-import { ModelLoader, PMREMGenerator, SceneControl, Vector3, lib } from 'thunder-3d'
+import type { Scene } from 'thunder-3d'
+import { EquirectangularReflectionMapping, ModelLoader, PMREMGenerator, SceneControl, Vector3, lib } from 'thunder-3d'
 import localforage from 'localforage'
 
 const modelLoader = new ModelLoader()
+const rgbeLoader = new lib.RGBELoader()
 
 interface ConnectWebglOptions {
     orbitControls?: boolean
@@ -21,6 +23,9 @@ interface ConnectWebglOptions {
     fov?: number
     near?: number
     far?: number
+
+    /** skybox */
+    hrdSkybox?: string
 }
 
 type ChangeType = 'cameraChange'
@@ -36,11 +41,13 @@ type ChangeTypeEvents<T> = ChangeTypeCbParameter<T>
 interface SetCameraLookAtParameter {
     position: Vector3
     target: Vector3
+    isTrigger: boolean
 }
 
 class ConnectWebgl {
     private options: ConnectWebglOptions
     private eventMap: Partial<Record<ChangeType, Array<(params: ChangeTypeCbParameter<ChangeType>) => void>>> = {}
+    private isTrigger = true
 
     container: HTMLElement
     sceneControl: SceneControl
@@ -49,6 +56,8 @@ class ConnectWebgl {
         this.options = options ?? {}
         this.container = container
         this.sceneControl = this.init()
+
+        options?.hrdSkybox && this.setSkybox(options.hrdSkybox, this.sceneControl.scene!)
     }
 
     private init() {
@@ -90,19 +99,36 @@ class ConnectWebgl {
     }
 
     /**
+     * setSkybox
+     * @param hrdSkybox
+     * @param scene
+     */
+    private setSkybox(hrdSkybox: string, scene: Scene) {
+        rgbeLoader.load(hrdSkybox, (texture) => {
+            texture.mapping = EquirectangularReflectionMapping
+            scene.background = texture
+        })
+    }
+
+    /**
      * Intrusion Camera Code
      * @param sceneControl
      */
     private intrusionCode(sceneControl: SceneControl) {
         if (sceneControl.controls) {
             sceneControl.controls.addEventListener('change', () => {
-                const direction = new Vector3()
-                sceneControl.camera!.getWorldDirection(direction)
-                this.triggerChange('cameraChange', {
-                    position: sceneControl.camera!.position,
-                    target: direction,
-                    orbitControlsTarget: sceneControl.controls?.target || null,
-                })
+                if (this.isTrigger) {
+                    const direction = new Vector3()
+                    sceneControl.camera!.getWorldDirection(direction)
+                    this.triggerChange('cameraChange', {
+                        position: sceneControl.camera!.position,
+                        target: direction,
+                        orbitControlsTarget: sceneControl.controls?.target || null,
+                    })
+                }
+                else {
+                    this.isTrigger = true
+                }
             })
         }
 
@@ -167,7 +193,8 @@ class ConnectWebgl {
      * @param lookat
      */
     setCameraLookAt(params: SetCameraLookAtParameter) {
-        const { position, target: lookat } = params
+        const { position, target: lookat, isTrigger } = params
+        this.isTrigger = isTrigger ?? true
 
         if (this.sceneControl.camera) {
             this.sceneControl.camera.position.set(position.x, position.y, position.z)

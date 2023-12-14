@@ -7,6 +7,7 @@ const connectWebgl = new ConnectWebgl(container, {
     environmentMaps: true,
     width: window.innerWidth,
     height: window.innerHeight,
+    hrdSkybox: './cloud.hdr',
     orbitControlsTarget: {
         x: -255.66294843933684,
         y: 3.1552226346761305,
@@ -40,3 +41,19 @@ connectWebgl.addEventListener('cameraChange', ({
 }) => {
     console.log('changeCameraPreset', position, target, orbitControlsTarget)
 })
+
+// setTimeout(() => {
+//     connectWebgl.setCameraLookAt({
+//         position: {
+//             x: 1,
+//             y: 1,
+//             z: 1,
+//         },
+//         target: {
+//             x: 0,
+//             y: 0,
+//             z: 0,
+//         },
+//         isTrigger: false,
+//     })
+// }, 2000)
