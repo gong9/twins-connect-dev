@@ -20,7 +20,6 @@ const connectWebgl = new ConnectWebgl(container, {
 })
 
 connectWebgl.addModelInScene('./glb/fac.glb')
-
 connectWebgl.addEventListener('cameraChange', ({
     position,
     target,
@@ -38,6 +37,8 @@ connectWebgl.addEventListener('cameraChange', ({
 interface ConnectWebglOptions {
     orbitControls?: boolean // 是否开启轨道控制器  默认 ture，不要关闭
     orbitControlsTarget?: Vector3 // 轨道控制器目标点  默认 (0,0,0)
+    enableDamping?: boolean // 轨道控制器是否开启阻尼效果  默认 false
+    dampingFactor?: number // 轨道控制器阻尼系数  默认 0.05
 
     /** canvas scene w&h */
     width?: number // canvas 宽度
@@ -55,6 +56,7 @@ interface ConnectWebglOptions {
 
     /** skybox */
     hrdSkybox?: string // 天空盒hrd图片地址
+    imgSkybox?: string // 天空盒img图片地址
 }
 ```
 
