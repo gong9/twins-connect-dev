@@ -1,6 +1,6 @@
 // @ts-nocheck  dts compile error, so when dev remove this line
 import type { Scene } from 'thunder-3d'
-import { EquirectangularReflectionMapping, ModelLoader, PMREMGenerator, SceneControl, Vector3, lib } from 'thunder-3d'
+import { CubeTextureLoader, EquirectangularReflectionMapping, ModelLoader, PMREMGenerator, SceneControl, Vector3, lib } from 'thunder-3d'
 import localforage from 'localforage'
 
 const modelLoader = new ModelLoader()
@@ -8,6 +8,8 @@ const rgbeLoader = new lib.RGBELoader()
 
 interface ConnectWebglOptions {
     orbitControls?: boolean
+    dampingFactor?: number
+    enableDamping?: boolean
     orbitControlsTarget?: Vector3
     lookAt?: Vector3
 
@@ -26,6 +28,7 @@ interface ConnectWebglOptions {
 
     /** skybox */
     hrdSkybox?: string
+    imgSkybox?: string[]
 }
 
 type ChangeType = 'cameraChange'
@@ -57,11 +60,12 @@ class ConnectWebgl {
         this.container = container
         this.sceneControl = this.init()
 
-        options?.hrdSkybox && this.setSkybox(options.hrdSkybox, this.sceneControl.scene!)
+        options?.hrdSkybox && this.setSkyboxHdr(options.hrdSkybox, this.sceneControl.scene!)
+        options?.imgSkybox && this.setsetSkyboxImg(options.imgSkybox, this.sceneControl.scene!)
     }
 
     private init() {
-        const { width, height, orbitControls, environmentMaps, cameraPosition, fov, near, far, orbitControlsTarget, lookAt } = this.options
+        const { width, height, orbitControls, environmentMaps, cameraPosition, fov, near, far, orbitControlsTarget, lookAt, dampingFactor, enableDamping } = this.options
         const scene = new SceneControl({
             orbitControls,
             ambientLight: true,
@@ -82,6 +86,9 @@ class ConnectWebgl {
         })
         scene.render(this.container)
 
+        scene.controls!.enableDamping = enableDamping ?? false
+        scene.controls!.dampingFactor = dampingFactor ?? 0.05
+
         this.intrusionCode(scene)
 
         if (environmentMaps) {
@@ -99,13 +106,25 @@ class ConnectWebgl {
     }
 
     /**
-     * setSkybox
+     * setSkybox hdr
      * @param hrdSkybox
      * @param scene
      */
-    private setSkybox(hrdSkybox: string, scene: Scene) {
+    private setSkyboxHdr(hrdSkybox: string, scene: Scene) {
         rgbeLoader.load(hrdSkybox, (texture) => {
             texture.mapping = EquirectangularReflectionMapping
+            scene.background = texture
+        })
+    }
+
+    /**
+     * setSkybox boxImg
+     * @param imgSkybox
+     * @param scene
+     */
+    private setsetSkyboxImg(imgSkybox: string[], scene: Scene) {
+        const cubeTextureLoader = new CubeTextureLoader()
+        cubeTextureLoader.load(imgSkybox, (texture) => {
             scene.background = texture
         })
     }
@@ -169,7 +188,7 @@ class ConnectWebgl {
 
         if (fileFormat === 'glb' || fileFormat === 'gltf') {
             modelLoader.loadGLTF(lastSource, false, true,
-                '/draco/',
+                './draco/',
                 (model) => {
                     model.scene.position.set(position.x, position.y, position.z)
                     this.sceneControl.add(model.scene)

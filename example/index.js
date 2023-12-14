@@ -7,7 +7,14 @@ const connectWebgl = new ConnectWebgl(container, {
     environmentMaps: true,
     width: window.innerWidth,
     height: window.innerHeight,
-    hrdSkybox: './cloud.hdr',
+    imgSkybox: [
+        './box/posx.jpg',
+        './box/negx.jpg',
+        './box/posy.jpg',
+        './box/negy.jpg',
+        './box/posz.jpg',
+        './box/negz.jpg',
+    ],
     orbitControlsTarget: {
         x: -255.66294843933684,
         y: 3.1552226346761305,
