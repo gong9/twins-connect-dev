@@ -1,6 +1,6 @@
 // @ts-nocheck  dts compile error, so when dev remove this line
 import type { Scene } from 'thunder-3d'
-import { CubeTextureLoader, EquirectangularReflectionMapping, ModelLoader, PMREMGenerator, SceneControl, Vector3, lib } from 'thunder-3d'
+import { CubeTextureLoader, EquirectangularReflectionMapping, ModelLoader, PMREMGenerator, SceneControl, Vector3, lib, use } from 'thunder-3d'
 import localforage from 'localforage'
 
 const modelLoader = new ModelLoader()
@@ -85,6 +85,10 @@ class ConnectWebgl {
             },
         })
         scene.render(this.container)
+
+        use.useframe(() => {
+            scene.renderer!.render(scene.scene!, scene.camera!)
+        })
 
         scene.controls!.enableDamping = enableDamping ?? false
         scene.controls!.dampingFactor = dampingFactor ?? 0.05

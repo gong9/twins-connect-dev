@@ -8,6 +8,8 @@ const connectWebgl = new ConnectWebgl(container, {
     enableDamping: true,
     width: window.innerWidth,
     height: window.innerHeight,
+    near: 10,
+    far: 100,
     imgSkybox: [
         './box/posx.jpg',
         './box/negx.jpg',
@@ -34,7 +36,7 @@ const connectWebgl = new ConnectWebgl(container, {
 
 })
 
-connectWebgl.addModelInScene('./glb/fac.glb', true, {
+connectWebgl.addModelInScene('./glb/fac1214.glb', true, {
     x: 0,
     y: 0,
     z: 0,
@@ -50,18 +52,26 @@ connectWebgl.addEventListener('cameraChange', ({
     console.log('changeCameraPreset', position, target, orbitControlsTarget)
 })
 
-// setTimeout(() => {
-//     connectWebgl.setCameraLookAt({
-//         position: {
-//             x: 1,
-//             y: 1,
-//             z: 1,
-//         },
-//         target: {
-//             x: 0,
-//             y: 0,
-//             z: 0,
-//         },
-//         isTrigger: false,
-//     })
-// }, 2000)
+let demo = 1
+
+const demo1 = () => {
+    connectWebgl.setCameraLookAt({
+        position: {
+            x: 1 + demo,
+            y: 1 + demo,
+            z: 1 + demo,
+        },
+        target: {
+            x: 0,
+            y: 0,
+            z: 0,
+        },
+        isTrigger: false,
+    })
+
+    demo++
+
+    requestAnimationFrame(() => demo1())
+}
+
+demo1()
