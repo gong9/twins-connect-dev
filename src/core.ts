@@ -1,7 +1,19 @@
 // @ts-nocheck  dts compile error, so when dev remove this line
 import type { Scene } from 'thunder-3d'
-import { CubeTextureLoader, EquirectangularReflectionMapping, ModelLoader, PMREMGenerator, SceneControl, Vector3, lib, use } from 'thunder-3d'
+import {
+    CubeTextureLoader,
+    EquirectangularReflectionMapping,
+    ModelLoader,
+    PMREMGenerator,
+    SceneControl,
+    Vector3,
+    lib,
+    use,
+} from 'thunder-3d'
 import localforage from 'localforage'
+
+import { poiPreset } from './preset'
+import { CameraControls, clock } from './cameraControls'
 
 const modelLoader = new ModelLoader()
 const rgbeLoader = new lib.RGBELoader()
@@ -47,10 +59,18 @@ interface SetCameraLookAtParameter {
     isTrigger: boolean
 }
 
+interface ChangeCameraPresetParameter {
+    poiId: string
+}
+
 class ConnectWebgl {
     private options: ConnectWebglOptions
     private eventMap: Partial<Record<ChangeType, Array<(params: ChangeTypeCbParameter<ChangeType>) => void>>> = {}
     private isTrigger = true
+    private cameraControls: CameraControls | null = null
+    private isMoveing = false
+    private setTargeting = false
+    private isEnabledCameraControls = false
 
     container: HTMLElement
     sceneControl: SceneControl
@@ -86,7 +106,12 @@ class ConnectWebgl {
         })
         scene.render(this.container)
 
+        this.cameraControls = new CameraControls(scene.camera!, scene.renderer!.domElement)
+        this.cameraControls.enabled = this.isEnabledCameraControls
+
         use.useframe(() => {
+            const delta = clock.getDelta()
+            const hasControlsUpdated = this.cameraControls!.update(delta)
             scene.renderer!.render(scene.scene!, scene.camera!)
         })
 
@@ -244,19 +269,43 @@ class ConnectWebgl {
 
         else
             (this.eventMap[change] as any) = [cb]
-
-        // const direction = new Vector3()
-        // this.sceneControl.camera!.getWorldDirection(direction)
-
-        // this.triggerChange(change, {
-        //     position: this.sceneControl.camera!.position,
-        //     target: direction,
-        // } as any)
     }
 
     removeEventListener<T extends ChangeType>(change: T, cb: (params: ChangeTypeCbParameter<T>) => void) {
         if (this.eventMap[change])
             this.eventMap[change] = this.eventMap[change]!.filter(fn => fn !== cb)
+    }
+
+    moveCameraTo(position: Vector3, target: Vector3) {
+        this.cameraControls!.enabled = true
+        this.isMoveing = true
+        this.setTargeting = true
+
+        this.cameraControls!.moveTo(position.x, position.y, position.z, true).then(() => {
+            this.isMoveing = false
+            if (!this.isMoveing && !this.setTargeting)
+                this.cameraControls!.enabled = false
+        })
+        this.cameraControls!.setTarget(target.x, target.y, target.z, true).then(() => {
+            this.setTargeting = false
+
+            if (!this.isMoveing && !this.setTargeting)
+                this.cameraControls!.enabled = false
+        })
+    }
+
+    /**
+     * camera animation
+     * @param params
+     */
+    changeCameraPreset(params: ChangeCameraPresetParameter) {
+        // @ts-ignore
+        const currentData = poiPreset[params.poiId]
+
+        if (currentData)
+            this.moveCameraTo(currentData.position, currentData.lookAt)
+
+        else console.error(`The poiId ${params.poiId} is not exist`)
     }
 }
 

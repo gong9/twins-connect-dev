@@ -8,8 +8,8 @@ const connectWebgl = new ConnectWebgl(container, {
     enableDamping: true,
     width: window.innerWidth,
     height: window.innerHeight,
-    near: 10,
-    far: 100,
+    near: 0.1,
+    far: 100000,
     imgSkybox: [
         './box/posx.jpg',
         './box/negx.jpg',
@@ -18,20 +18,15 @@ const connectWebgl = new ConnectWebgl(container, {
         './box/posz.jpg',
         './box/negz.jpg',
     ],
-    orbitControlsTarget: {
-        x: -255.66294843933684,
-        y: 3.1552226346761305,
-        z: 2.778067000658884,
-    },
     lookAt: {
-        x: -0.0164403845163225,
-        y: -0.7563787157027716,
-        z: -0.6539273294401923,
+        x: 0,
+        y: 0,
+        z: 0,
     },
     cameraPosition: {
-        x: -249.48198348954315,
-        y: 287.52511227364226,
-        z: 248.63009673689166,
+        x: 0,
+        y: 0,
+        z: 0,
     },
 
 })
@@ -40,8 +35,6 @@ connectWebgl.addModelInScene('./glb/fac1214.glb', true, {
     x: 0,
     y: 0,
     z: 0,
-}, (e) => {
-    console.log(e)
 })
 
 connectWebgl.addEventListener('cameraChange', ({
@@ -49,29 +42,43 @@ connectWebgl.addEventListener('cameraChange', ({
     target,
     orbitControlsTarget,
 }) => {
-    console.log('changeCameraPreset', position, target, orbitControlsTarget)
+    // console.log('changeCameraPreset', position, target, orbitControlsTarget)
 })
 
-let demo = 1
+setTimeout(() => {
+    console.log('moveCameraTo')
 
-const demo1 = () => {
-    connectWebgl.setCameraLookAt({
-        position: {
-            x: 1 + demo,
-            y: 1 + demo,
-            z: 1 + demo,
-        },
-        target: {
-            x: 0,
-            y: 0,
-            z: 0,
-        },
-        isTrigger: false,
+    connectWebgl.moveCameraTo({
+        x: 220.13638,
+        y: 553.87818,
+        z: 171.07517,
+    }, {
+        x: 1.02890,
+        y: 0.49550,
+        z: 18.24786,
     })
+}, 2000)
 
-    demo++
+// let demo = 1
 
-    requestAnimationFrame(() => demo1())
-}
+// const demo1 = () => {
+//     connectWebgl.setCameraLookAt({
+//         position: {
+//             x: 0,
+//             y: 0.0001 + demo,
+//             z: 0,
+//         },
+//         target: {
+//             x: 0,
+//             y: 0,
+//             z: 0,
+//         },
+//         isTrigger: false,
+//     })
 
-demo1()
+//     demo++
+
+//     requestAnimationFrame(() => demo1())
+// }
+
+// demo1()

@@ -4,6 +4,9 @@ import commonjs from 'rollup-plugin-commonjs'
 import typescript from 'rollup-plugin-typescript2'
 import dts from 'rollup-plugin-dts'
 
+// @ts-ignore
+import * as banner from 'rollup-plugin-banner'
+
 export default [
   {
     input: './src/index.ts',
@@ -21,6 +24,7 @@ export default [
       babel(),
       commonjs(),
       typescript(),
+      banner.default.default('v<%= pkg.version %>'),
     ],
   },
   {
