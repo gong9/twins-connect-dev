@@ -79,4 +79,15 @@ interface ConnectWebglOptions {
     - onProgress 模型加载进度回调
     - onError 模型加载失败回调
 
-- changeCameraPreset 切换相机位置和朝向  【wip】
+- changeCameraPreset 切换相机位置和朝向 
+    - 参数1 object类型
+        - poiId 点位id
+    - 参数2 options
+        - duration 动画时长 默认 1s
+
+- moveCameraTo 切换相机位置和朝向 （changeCameraPreset实际调用方法）
+    - position 相机位置
+    - target 相机朝向
+    - options
+        - duration 动画时长 默认 1s
+    

@@ -62,6 +62,10 @@ interface ChangeCameraPresetParameter {
     poiId: string
 }
 
+interface ChangeCameraPresetOptions {
+    duration?: number
+}
+
 class ConnectWebgl {
     private options: ConnectWebglOptions
     private eventMap: Partial<Record<ChangeType, Array<(params: ChangeTypeCbParameter<ChangeType>) => void>>> = {}
@@ -268,11 +272,11 @@ class ConnectWebgl {
             this.eventMap[change] = this.eventMap[change]!.filter(fn => fn !== cb)
     }
 
-    moveCameraTo(position: Vector3, target: Vector3) {
+    moveCameraTo(position: Vector3, target: Vector3, options?: ChangeCameraPresetOptions) {
         const currentPoition = this.sceneControl.camera!.position.clone()
         const currentPositionInterpolation = new Vector3()
 
-        new TWEEN.Tween({ t: 0 }).to({ t: 1 }, 1000).onStart(() => {
+        new TWEEN.Tween({ t: 0 }).to({ t: 1 }, options?.duration || 1000).onStart(() => {
             this.sceneControl.controls!.target.copy(new Vector3(target.x, target.y, target.z))
         }).onUpdate(({ t }) => {
             this.sceneControl.camera!.position.copy(currentPositionInterpolation.lerpVectors(currentPoition, position, t))
@@ -285,12 +289,12 @@ class ConnectWebgl {
      * camera animation
      * @param params
      */
-    changeCameraPreset(params: ChangeCameraPresetParameter) {
+    changeCameraPreset(params: ChangeCameraPresetParameter, options?: ChangeCameraPresetOptions) {
         // @ts-ignore
         const currentData = poiPreset[params.poiId]
 
         if (currentData)
-            this.moveCameraTo(currentData.position, currentData.lookAt)
+            this.moveCameraTo(currentData.position, currentData.lookAt, options)
 
         else console.error(`The poiId ${params.poiId} is not exist`)
     }

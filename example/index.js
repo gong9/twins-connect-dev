@@ -41,6 +41,11 @@ connectWebgl.addEventListener('cameraChange', ({
     console.log('changeCameraPreset', position, target, orbitControlsTarget)
 })
 
+connectWebgl.changeCameraPreset({
+    poiId: 0,
+}, {
+    duration: 50000,
+})
 // setTimeout(() => {
 //     console.log('moveCameraTo')
 
