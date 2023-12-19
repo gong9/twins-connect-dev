@@ -1,6 +1,6 @@
 {
   "name": "twins-connect-dev",
-  "version": "0.0.4-alpha3",
+  "version": "0.0.4-alpha4",
   "description": "",
   "main": "lib/index.cjs.js",
   "module": "lib/index.es.js",
@@ -18,7 +18,11 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
-  "keywords": [],
+  "keywords": [
+    "webgl",
+    "3d",
+    "threejs"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
