@@ -1,5 +1,6 @@
 // @ts-nocheck  dts compile error, so when dev remove this line
 import type { Scene } from 'thunder-3d'
+import * as TWEEN from '@tweenjs/tween.js'
 import {
     CubeTextureLoader,
     EquirectangularReflectionMapping,
@@ -11,9 +12,8 @@ import {
     use,
 } from 'thunder-3d'
 import localforage from 'localforage'
-
+import globalControl from './GlobalControl'
 import { poiPreset } from './preset'
-import { CameraControls, clock } from './cameraControls'
 
 const modelLoader = new ModelLoader()
 const rgbeLoader = new lib.RGBELoader()
@@ -48,7 +48,6 @@ type ChangeType = 'cameraChange'
 type ChangeTypeCbParameter<T> = T extends 'cameraChange' ? {
     position: Vector3
     target: Vector3
-    orbitControlsTarget: Vector3 | null
 } : never
 
 type ChangeTypeEvents<T> = ChangeTypeCbParameter<T>
@@ -67,10 +66,6 @@ class ConnectWebgl {
     private options: ConnectWebglOptions
     private eventMap: Partial<Record<ChangeType, Array<(params: ChangeTypeCbParameter<ChangeType>) => void>>> = {}
     private isTrigger = true
-    private cameraControls: CameraControls | null = null
-    private isMoveing = false
-    private setTargeting = false
-    private isEnabledCameraControls = false
 
     container: HTMLElement
     sceneControl: SceneControl
@@ -106,12 +101,9 @@ class ConnectWebgl {
         })
         scene.render(this.container)
 
-        this.cameraControls = new CameraControls(scene.camera!, scene.renderer!.domElement)
-        this.cameraControls.enabled = this.isEnabledCameraControls
-
         use.useframe(() => {
-            const delta = clock.getDelta()
-            const hasControlsUpdated = this.cameraControls!.update(delta)
+            TWEEN.update()
+            globalControl.update()
             scene.renderer!.render(scene.scene!, scene.camera!)
         })
 
@@ -129,8 +121,7 @@ class ConnectWebgl {
             scene.scene!.environment = pmremGenerator.fromScene(roomEnvironment, 0.04).texture
         }
 
-        scene.camera!.lookAt(lookAt ?? new Vector3(0, 0, 0))
-        scene.controls!.target.copy(orbitControlsTarget ?? new Vector3(0, 0, 0))
+        scene.controls!.target.copy(lookAt ?? new Vector3(0, 0, 0))
         return scene
     }
 
@@ -170,8 +161,7 @@ class ConnectWebgl {
                     sceneControl.camera!.getWorldDirection(direction)
                     this.triggerChange('cameraChange', {
                         position: sceneControl.camera!.position,
-                        target: direction,
-                        orbitControlsTarget: sceneControl.controls?.target || null,
+                        target: sceneControl.controls?.target ?? direction,
                     })
                 }
                 else {
@@ -246,7 +236,7 @@ class ConnectWebgl {
 
         if (this.sceneControl.camera) {
             this.sceneControl.camera.position.set(position.x, position.y, position.z)
-            this.sceneControl.camera.lookAt(lookat)
+            this.sceneControl.controls!.target.copy(lookat)
         }
     }
 
@@ -256,9 +246,11 @@ class ConnectWebgl {
      */
     getCameraLookAt() {
         if (this.sceneControl.camera) {
+            const direction = new Vector3()
+            this.sceneControl.camera.getWorldDirection(direction)
             return {
-                position: this.sceneControl.camera?.position,
-                target: this.sceneControl.camera?.lookAt,
+                position: this.sceneControl.camera?.position || new Vector3(0, 0, 0),
+                target: this.sceneControl.controls?.target || new Vector3(0, 0, 0),
             }
         }
     }
@@ -277,21 +269,16 @@ class ConnectWebgl {
     }
 
     moveCameraTo(position: Vector3, target: Vector3) {
-        this.cameraControls!.enabled = true
-        this.isMoveing = true
-        this.setTargeting = true
+        const currentPoition = this.sceneControl.camera!.position.clone()
+        const currentPositionInterpolation = new Vector3()
 
-        this.cameraControls!.moveTo(position.x, position.y, position.z, true).then(() => {
-            this.isMoveing = false
-            if (!this.isMoveing && !this.setTargeting)
-                this.cameraControls!.enabled = false
-        })
-        this.cameraControls!.setTarget(target.x, target.y, target.z, true).then(() => {
-            this.setTargeting = false
-
-            if (!this.isMoveing && !this.setTargeting)
-                this.cameraControls!.enabled = false
-        })
+        new TWEEN.Tween({ t: 0 }).to({ t: 1 }, 1000).onStart(() => {
+            this.sceneControl.controls!.target.copy(new Vector3(target.x, target.y, target.z))
+        }).onUpdate(({ t }) => {
+            this.sceneControl.camera!.position.copy(currentPositionInterpolation.lerpVectors(currentPoition, position, t))
+        }).onComplete(() => {
+            console.log('end')
+        }).start()
     }
 
     /**

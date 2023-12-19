@@ -60,7 +60,7 @@
     ]
   },
   "dependencies": {
-    "camera-controls": "^2.7.3",
+    "@tweenjs/tween.js": "^21.0.0",
     "localforage": "^1.10.0",
     "thunder-3d": "0.0.4-alpha8"
   }
