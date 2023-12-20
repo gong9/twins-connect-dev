@@ -5,3 +5,5 @@ dist
 .parcel-cache
 
 public/glb/*
+
+public/demo02.jpg

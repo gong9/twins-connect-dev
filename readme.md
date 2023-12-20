@@ -82,7 +82,7 @@ interface ConnectWebglOptions {
     - onProgress 模型加载进度回调
     - onError 模型加载失败回调
 
-- changeCameraPreset 切换相机位置和朝向 
+- changeCameraPreset 切换相机位置和朝向 [废弃]
     - 参数1 object类型
         - poiId 点位id
     - 参数2 options
