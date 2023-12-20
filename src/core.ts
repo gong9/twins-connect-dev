@@ -52,10 +52,16 @@ type ChangeTypeCbParameter<T> = T extends 'cameraChange' ? {
 
 type ChangeTypeEvents<T> = ChangeTypeCbParameter<T>
 
+interface TransitionParameter {
+    use?: boolean
+    duration?: number
+}
+
 interface SetCameraLookAtParameter {
     position: Vector3
     target: Vector3
     isTrigger: boolean
+    transition?: TransitionParameter
 }
 
 interface ChangeCameraPresetParameter {
@@ -64,6 +70,7 @@ interface ChangeCameraPresetParameter {
 
 interface ChangeCameraPresetOptions {
     duration?: number
+    onUpdate?: () => void
 }
 
 class ConnectWebgl {
@@ -235,8 +242,18 @@ class ConnectWebgl {
      * @param lookat
      */
     setCameraLookAt(params: SetCameraLookAtParameter) {
-        const { position, target: lookat, isTrigger } = params
+        const { position, target: lookat, isTrigger, transition } = params
         this.isTrigger = isTrigger ?? true
+
+        if (transition?.use) {
+            this.moveCameraTo(position, lookat, {
+                duration: transition.duration ? transition.duration * 1000 : 1000,
+                onUpdate: () => {
+                    this.isTrigger = isTrigger ?? true
+                },
+            })
+            return
+        }
 
         if (this.sceneControl.camera) {
             this.sceneControl.camera.position.set(position.x, position.y, position.z)
@@ -272,16 +289,24 @@ class ConnectWebgl {
             this.eventMap[change] = this.eventMap[change]!.filter(fn => fn !== cb)
     }
 
+    /**
+     * moveCameraTo animation
+     * @param position
+     * @param target
+     * @param options
+     */
     moveCameraTo(position: Vector3, target: Vector3, options?: ChangeCameraPresetOptions) {
         const currentPoition = this.sceneControl.camera!.position.clone()
         const currentPositionInterpolation = new Vector3()
 
         new TWEEN.Tween({ t: 0 }).to({ t: 1 }, options?.duration || 1000).onStart(() => {
+            options?.onUpdate && options.onUpdate()
             this.sceneControl.controls!.target.copy(new Vector3(target.x, target.y, target.z))
         }).onUpdate(({ t }) => {
+            options?.onUpdate && options.onUpdate()
             this.sceneControl.camera!.position.copy(currentPositionInterpolation.lerpVectors(currentPoition, position, t))
         }).onComplete(() => {
-            console.log('end')
+            // console.log('end')
         }).start()
     }
 

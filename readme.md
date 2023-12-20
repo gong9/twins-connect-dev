@@ -66,6 +66,9 @@ interface ConnectWebglOptions {
         - position 相机位置
         - target 相机朝向
         - isTrigger 是否触发 cameraChange 事件 默认 true
+        - transition
+            - use 是否使用动画 默认 false
+            - duration 动画时长 默认 1s 单位 s
     
 - getCameraLookAt  获取相机位置和朝向
 - events    
