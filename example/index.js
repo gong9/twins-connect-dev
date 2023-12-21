@@ -28,7 +28,7 @@ const connectWebgl = new ConnectWebgl(container, {
         y: 196.83615636567652,
         z: 414.10957788923065,
     },
-    // ground: './demo02.jpg',
+    ground: './demo02.jpg',
 
 })
 
@@ -102,22 +102,22 @@ connectWebgl.addEventListener('cameraChange', ({
 
 // demo1()
 
-setTimeout(() => {
-    connectWebgl.setCameraLookAt({
-        position: {
-            x: 30,
-            y: 10,
-            z: 30,
-        },
-        target: {
-            x: 0,
-            y: 0,
-            z: 0,
-        },
-        isTrigger: false,
-        transition: {
-            use: true,
-            duration: 5,
-        },
-    })
-}, 2000)
+// setTimeout(() => {
+//     connectWebgl.setCameraLookAt({
+//         position: {
+//             x: 30,
+//             y: 10,
+//             z: 30,
+//         },
+//         target: {
+//             x: 0,
+//             y: 0,
+//             z: 0,
+//         },
+//         isTrigger: false,
+//         transition: {
+//             use: true,
+//             duration: 5,
+//         },
+//     })
+// }, 2000)

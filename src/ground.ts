@@ -1,10 +1,10 @@
-import { Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader } from 'thunder-3d'
+import { Mesh, MeshBasicMaterial, PlaneGeometry, TextureLoader, sRGBEncoding } from 'thunder-3d'
 
 export const createGround = (ground: string) => {
     const texture = new TextureLoader().load(ground)
     // texture.wrapS = texture.wrapT = 1000
     // texture.repeat.set(1000, 1000)
-
+    texture.encoding = sRGBEncoding
     const geometry = new PlaneGeometry(4000 * 2, 2500 * 2)
     const material = new MeshBasicMaterial({ map: texture })
     const mesh = new Mesh(geometry, material)
