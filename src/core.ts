@@ -123,6 +123,8 @@ class ConnectWebgl {
         })
         scene.render(this.container)
 
+        scene.renderer!.setPixelRatio(window.devicePixelRatio)
+
         use.useframe(() => {
             TWEEN.update()
             globalControl.update()
@@ -328,7 +330,7 @@ class ConnectWebgl {
             .onStart(() => {
                 options?.onStart && options.onStart()
             })
-            // .easing(TWEEN.Easing.Quadratic.InOut)
+            .easing(TWEEN.Easing.Quadratic.InOut)
             .onUpdate(({ t, lookat }) => {
                 options?.onUpdate && options.onUpdate()
                 this.sceneControl.controls!.target.copy(lookat)
