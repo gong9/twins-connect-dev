@@ -10,7 +10,7 @@ const connectWebgl = new ConnectWebgl(container, {
     height: window.innerHeight,
     near: 0.1,
     far: 100000,
-    fov: 60,
+    fov: 20,
     imgSkybox: [
         './box/posx.jpg',
         './box/negx.jpg',
@@ -108,22 +108,22 @@ connectWebgl.addEventListener('cameraChange', ({
 //     console.log(connectWebgl.getCameraLookAt())
 // }, 3000)
 
-// setTimeout(() => {
-//     connectWebgl.setCameraLookAt({
-//         position: {
-//             x: 300,
-//             y: 300,
-//             z: 300,
-//         },
-//         target: {
-//             x: 100,
-//             y: 100,
-//             z: 100,
-//         },
-//         isTrigger: true,
-//         transition: {
-//             use: true,
-//             duration: 2,
-//         },
-//     })
-// }, 2000)
+setTimeout(() => {
+    connectWebgl.setCameraLookAt({
+        position: {
+            x: 300,
+            y: 300,
+            z: 300,
+        },
+        target: {
+            x: 100,
+            y: 100,
+            z: 100,
+        },
+        isTrigger: true,
+        transition: {
+            use: true,
+            duration: 3,
+        },
+    })
+}, 2000)

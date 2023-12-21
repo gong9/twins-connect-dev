@@ -1,4 +1,4 @@
-/// / @ts-nocheck  dts compile error, so when dev remove this line
+// @ts-nocheck  dts compile error, so when dev remove this line
 import type { Scene } from 'thunder-3d'
 import { throttle } from 'lodash'
 import * as TWEEN from '@tweenjs/tween.js'
@@ -124,7 +124,7 @@ class ConnectWebgl {
         scene.renderer!.setPixelRatio(window.devicePixelRatio)
 
         use.useframe(() => {
-            TWEEN.update()
+            // TWEEN.update()
             scene.renderer!.render(scene.scene!, scene.camera!)
         })
 
@@ -330,16 +330,18 @@ class ConnectWebgl {
         new TWEEN.Tween({ t: 0, lookat: this.sceneControl.controls!.target.clone() }).to({ t: 1, lookat: target }, options?.duration || 1000)
             .onStart(() => {
                 options?.onStart && options.onStart()
+                this.sceneControl.controls?.enabled = false
             })
             .easing(TWEEN.Easing.Quadratic.InOut)
             .onUpdate(({ t, lookat }) => {
-                options?.onUpdate && options.onUpdate()
+                // options?.onUpdate && options.onUpdate()
                 this.sceneControl.controls!.target.copy(lookat)
                 const currentPosition = currentPositionInterpolation.lerpVectors(currentPoition, position, t)
                 this.sceneControl.camera!.position.copy(currentPosition)
             })
             .onComplete(() => {
                 options?.onComplate && options.onComplate()
+                this.sceneControl.controls?.enabled = true
             })
             .start()
     }
