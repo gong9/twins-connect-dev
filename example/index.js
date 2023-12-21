@@ -29,7 +29,7 @@ const connectWebgl = new ConnectWebgl(container, {
         y: 16.83615636567652,
         z: 44.10957788923065,
     },
-    ground: './dituqianlanse.jpg',
+    ground: './demo02.jpg',
 
 })
 
