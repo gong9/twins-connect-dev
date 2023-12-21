@@ -28,11 +28,11 @@ const connectWebgl = new ConnectWebgl(container, {
         y: 196.83615636567652,
         z: 414.10957788923065,
     },
-    ground: './demo02.jpg',
+    ground: './glb/map.jpg',
 
 })
 
-connectWebgl.addModelInScene('./glb/fac1214.glb', true)
+connectWebgl.addModelInScene('./glb/11.glb', true)
 
 connectWebgl.addEventListener('cameraChange', ({
     position,
@@ -101,6 +101,11 @@ connectWebgl.addEventListener('cameraChange', ({
 // }
 
 // demo1()
+
+setTimeout(() => {
+    console.log(1222)
+    console.log(connectWebgl.getCameraLookAt())
+}, 3000)
 
 // setTimeout(() => {
 //     connectWebgl.setCameraLookAt({

@@ -1,6 +1,6 @@
 {
   "name": "twins-connect-dev",
-  "version": "0.0.4-alpha7",
+  "version": "0.0.4-alpha8",
   "description": "",
   "main": "lib/index.cjs.js",
   "module": "lib/index.es.js",

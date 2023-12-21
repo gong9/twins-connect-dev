@@ -8,8 +8,10 @@ import {
     ModelLoader,
     PMREMGenerator,
     SceneControl,
+    TextureLoader,
     Vector3,
     lib,
+    sRGBEncoding,
     use,
 } from 'thunder-3d'
 import localforage from 'localforage'
@@ -96,7 +98,7 @@ class ConnectWebgl {
         options?.hrdSkybox && this.setSkyboxHdr(options.hrdSkybox, this.sceneControl.scene!)
         options?.imgSkybox && this.setsetSkyboxImg(options.imgSkybox, this.sceneControl.scene!)
 
-        this.options.ground && this.sceneControl.add(createGround(this.options.ground))
+        // this.options.ground && this.sceneControl.add(createGround(this.options.ground))
     }
 
     private init() {
@@ -234,6 +236,16 @@ class ConnectWebgl {
                 './draco/',
                 (model) => {
                     model.scene.position.set(position.x, position.y, position.z)
+
+                    if (this.options.ground) {
+                        const mesh = model.scene.getObjectByName('柱体')
+                        const texture = new TextureLoader().load(this.options.ground);
+                        // texture.encoding = sRGBEncoding;
+                        ((mesh as any).material.map = texture);
+                        ((mesh as any).material.aoMap = texture);
+                        ((mesh as any).material.aoMapIntensity = 1)
+                    }
+
                     this.sceneControl.add(model.scene)
                     return model
                 },
