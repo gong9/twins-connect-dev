@@ -1,4 +1,4 @@
-// @ts-nocheck  dts compile error, so when dev remove this line
+/// / @ts-nocheck  dts compile error, so when dev remove this line
 import type { Scene } from 'thunder-3d'
 import { throttle } from 'lodash'
 import * as TWEEN from '@tweenjs/tween.js'
@@ -15,8 +15,6 @@ import {
     use,
 } from 'thunder-3d'
 import localforage from 'localforage'
-import globalControl from './GlobalControl'
-import { createGround } from './ground'
 import { poiPreset } from './preset'
 
 const modelLoader = new ModelLoader()
@@ -127,7 +125,6 @@ class ConnectWebgl {
 
         use.useframe(() => {
             TWEEN.update()
-            globalControl.update()
             scene.renderer!.render(scene.scene!, scene.camera!)
         })
 
@@ -185,7 +182,7 @@ class ConnectWebgl {
         else {
             this.isTrigger = true
         }
-    }, 20)
+    })
 
     /**
      * Intrusion Camera Code
@@ -241,6 +238,10 @@ class ConnectWebgl {
 
                     if (this.options.ground) {
                         const mesh = model.scene.getObjectByName('柱体')
+                        mesh?.scale.copy(new Vector3(3050, 1, 3700))
+                        mesh?.position.copy(new Vector3(60.79132080078125, -8.378414154052734,
+                            -10.244125366210938))
+                        mesh?.rotateY(-Math.PI / 2)
                         const texture = new TextureLoader().load(this.options.ground);
                         // texture.encoding = sRGBEncoding;
                         ((mesh as any).material.map = texture);
@@ -334,7 +335,8 @@ class ConnectWebgl {
             .onUpdate(({ t, lookat }) => {
                 options?.onUpdate && options.onUpdate()
                 this.sceneControl.controls!.target.copy(lookat)
-                this.sceneControl.camera!.position.copy(currentPositionInterpolation.lerpVectors(currentPoition, position, t))
+                const currentPosition = currentPositionInterpolation.lerpVectors(currentPoition, position, t)
+                this.sceneControl.camera!.position.copy(currentPosition)
             })
             .onComplete(() => {
                 options?.onComplate && options.onComplate()
