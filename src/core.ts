@@ -334,7 +334,7 @@ class ConnectWebgl {
             })
             .easing(TWEEN.Easing.Quadratic.InOut)
             .onUpdate(({ t, lookat }) => {
-                // options?.onUpdate && options.onUpdate()
+                options?.onUpdate && options.onUpdate()
                 this.sceneControl.controls!.target.copy(lookat)
                 const currentPosition = currentPositionInterpolation.lerpVectors(currentPoition, position, t)
                 this.sceneControl.camera!.position.copy(currentPosition)

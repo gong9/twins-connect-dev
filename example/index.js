@@ -10,7 +10,7 @@ const connectWebgl = new ConnectWebgl(container, {
     height: window.innerHeight,
     near: 0.1,
     far: 100000,
-    fov: 20,
+    fov: 60,
     imgSkybox: [
         './box/posx.jpg',
         './box/negx.jpg',
@@ -120,7 +120,7 @@ setTimeout(() => {
             y: 100,
             z: 100,
         },
-        isTrigger: true,
+        isTrigger: false,
         transition: {
             use: true,
             duration: 3,
